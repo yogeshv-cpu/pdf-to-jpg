@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: pdf-to-jpg
+    runtime: python
+    buildCommand: "apt-get install -y poppler-utils && pip install -r requirements.txt"
+    startCommand: "python app.py"
+    plan: free
+```
+
+---
+
+**Step-by-step deployment:**
+
+1. **Create a GitHub account** (if you don't have one) at github.com
+2. **Create a new repository** called `pdf-to-jpg` and upload those 3 files
+3. **Sign up at Render.com** using your GitHub account (free, no credit card)
+4. Click **"New Web Service"** → connect your GitHub repo
+5. Render will auto-detect the `render.yaml` and configure everything
+6. Hit **Deploy** — in ~3 minutes you'll get a permanent URL like:
+```
+   https://pdf-to-jpg.onrender.com/convert
