@@ -1,13 +1,16 @@
 import subprocess
 import io
-import base64
-from flask import Flask, request, jsonify
+import uuid
+import os
+from flask import Flask, request, jsonify, send_file
 
 subprocess.run(["apt-get", "install", "-y", "poppler-utils"], capture_output=True)
 
 from pdf2image import convert_from_bytes
 
 app = Flask(__name__)
+
+images_store = {}
 
 @app.route('/convert', methods=['POST'])
 def convert_pdf_to_jpg():
@@ -23,15 +26,25 @@ def convert_pdf_to_jpg():
     images[0].save(img_io, format='JPEG', quality=90)
     img_io.seek(0)
 
-    img_base64 = base64.b64encode(img_io.read()).decode('utf-8')
+    image_id = str(uuid.uuid4())
+    images_store[image_id] = img_io.read()
+
+    base_url = os.environ.get('RENDER_EXTERNAL_URL', 'http://localhost:10000')
+    image_url = f"{base_url}/image/{image_id}"
 
     return jsonify({
         "Files": [
             {
-                "Url": f"data:image/jpeg;base64,{img_base64}"
+                "Url": image_url
             }
         ]
     })
+
+@app.route('/image/<image_id>', methods=['GET'])
+def get_image(image_id):
+    if image_id not in images_store:
+        return jsonify({'error': 'Image not found'}), 404
+    return send_file(io.BytesIO(images_store[image_id]), mimetype='image/jpeg')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
