@@ -29,8 +29,3 @@ def convert_pdf_to_jpg():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
-```
-
-**And update the Build Command on Render back to just:**
-```
-pip install -r requirements.txt
