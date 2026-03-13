@@ -1,11 +1,9 @@
 import subprocess
-import sys
 import io
-from flask import Flask, request, jsonify, send_file
+import base64
+from flask import Flask, request, jsonify
 
-# Install poppler at startup
-subprocess.run(["apt-get", "install", "-y", "poppler-utils"], 
-               capture_output=True)
+subprocess.run(["apt-get", "install", "-y", "poppler-utils"], capture_output=True)
 
 from pdf2image import convert_from_bytes
 
@@ -25,7 +23,15 @@ def convert_pdf_to_jpg():
     images[0].save(img_io, format='JPEG', quality=90)
     img_io.seek(0)
 
-    return send_file(img_io, mimetype='image/jpeg', download_name='output.jpg')
+    img_base64 = base64.b64encode(img_io.read()).decode('utf-8')
+
+    return jsonify({
+        "Files": [
+            {
+                "Url": f"data:image/jpeg;base64,{img_base64}"
+            }
+        ]
+    })
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
