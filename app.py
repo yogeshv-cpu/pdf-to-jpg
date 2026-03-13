@@ -1,6 +1,13 @@
-from flask import Flask, request, jsonify, send_file
-from pdf2image import convert_from_bytes
+import subprocess
+import sys
 import io
+from flask import Flask, request, jsonify, send_file
+
+# Install poppler at startup
+subprocess.run(["apt-get", "install", "-y", "poppler-utils"], 
+               capture_output=True)
+
+from pdf2image import convert_from_bytes
 
 app = Flask(__name__)
 
@@ -24,10 +31,6 @@ if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
 ```
 
----
-
-**`requirements.txt`**
+**And update the Build Command on Render back to just:**
 ```
-flask
-pdf2image
-pillow
+pip install -r requirements.txt
